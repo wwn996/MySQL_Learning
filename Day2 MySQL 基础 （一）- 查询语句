@@ -1,0 +1,582 @@
+@[TOC](MySQL 基础入门)
+
+# Day2 MySQL 基础 （一）- 查询语句
+## 一、学习内容
+### 1. 导入示例数据库
+ [如需教程请点击此处即可查阅](https://www.yiibai.com/mysql/how-to-load-sample-database-into-mysql-database-server.html)
+```sql
+# 创建数据库
+	CREATE DATABASE IF NOT EXISTS yiibaidb DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
+	use yiibaidb;
+
+# 导入数据
+	source D:\yiibaidb.sql;
+
+# 测试导入结果
+	select city,phone,country from `offices`;
+```
+#### 1.1 MySQL示例数据库结构
+MySQL示例数据库模式由以下表组成：
+ - customers: 存储客户的数据。
+ - products: 存储汽车的数据。
+ - productLines: 存储产品类别数据。
+ - orders: 存储客户订购的销售订单。
+ - orderDetails: 存储每个销售订单的订单产品数据项。
+ - payments: 存储客户订单的付款数据信息。
+ - employees: 存储所有员工信息以及组织结构，例如，直接上级(谁向谁报告工作)。
+ - offices: 存储销售处数据，类似于各个分公司。
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20190401222209882.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mjk3MDE5NQ==,size_16,color_FFFFFF,t_70)
+
+
+### 2. SQL是什么？MySQL是什么？
+#### 2.1 SQL
+SQL 是结构化查询语言（Structured Query Language），一种用于存储、操作或者检索存储在关系型数据库中数据的计算机语言。
+
+SQL 是关系型数据库系统（Relation Database System）的标准语言。所有的关系型数据库管理系统，例如 MySQL、MS Access、Oracle、Sybase、Informix、Postgres SQL 和 SQL Server，都使用 SQL 作为其标准数据库语言。
+
+#### 2.2 MySQL
+MySQL 是一个开源的 SQL 数据库管理系统，由瑞典公司 MySQL AB 开发。MySQL 的发音为“my ess-que-ell”，而 SQL 的发音则为“sequel”。
+
+MySQL 对多种平台都有良好的支持，包括 Microsoft Windows、主要的 Linux 发行版、UNIX 和 Mac OS X 等。
+
+MySQL 有免费和付费两种版本，免费或付费取决于其用途（非商业用途 / 商业用途）和所支持的特性。MySQL 附带了一个高效、多线程、多用户，并且非常健壮的 SQL 数据库服务器。
+
+### 3. 查询语句 SELECT FROM 
+参考教材：http://www.runoob.com/sql/sql-select.html
+ - 概念
+SQL SELECT 语句用于从数据库的表中取回所需的数据，并以表的形式返回。返回的表被称作结果集。
+ - 语法
+```sql
+# 写法一
+	SELECT column_name,column_name
+	FROM table_name;
+
+# 写法二
+	SELECT * FROM table_name;
+
+# 实例：获取名为 "city" 、 "phone"及"country " 的列的内容（从名为 "offices" 的数据库表）
+	mysql> select city,phone,country from `offices`;
+	+---------------+------------------+-----------+
+	| city          | phone            | country   |
+	+---------------+------------------+-----------+
+	| San Francisco | +1 650 219 4782  | USA       |
+	| Boston        | +1 215 837 0825  | USA       |
+	| NYC           | +1 212 555 3000  | USA       |
+	| Paris         | +33 14 723 4404  | France    |
+	| Beijing       | +86 33 224 5000  | China     |
+	| Sydney        | +61 2 9264 2451  | Australia |
+	| London        | +44 20 7877 2041 | UK        |
+	+---------------+------------------+-----------+
+	7 rows in set (0.00 sec)
+```
+**注释：** SQL 语句对大小写不敏感。SELECT 等效于 select。星号（*）是选取所有列的快捷方式。
+
+#### 3.1 去重语句
+参考教材：http://www.runoob.com/sql/sql-distinct.html
+ - 概念
+SQL DISTINCT 关键字同 SELECT 语句一起使用，可以去除所有重复记录，只返回唯一项。
+有时候，数据表中可能会有重复的记录。在检索这些记录的时候，应该只取回唯一的记录，而不是重复的。
+
+ - 语法
+使用 DISTINCT 关键字去除查询结果中的重复记录的基本语法如下所示：
+```sql
+# 写法
+    SELECT DISTINCT column1, column2,.....columnN 
+    FROM table_name
+    WHERE [condition]
+
+# 实例：从"offices"表的"city"列中选出唯一不同的值，即去掉"city"列重复值；
+	mysql> SELECT DISTINCT city from `offices`;
+	+---------------+
+	| city          |
+	+---------------+
+	| San Francisco |
+	| Boston        |
+	| NYC           |
+	| Paris         |
+	| Beijing       |
+	| Sydney        |
+	| London        |
+	+---------------+
+	7 rows in set (0.00 sec)
+```
+
+#### 3.2 前N个语句
+参考教材：http://www.manongjc.com/mysql_basic/mysql-limit-basic.html
+
+ - 概念
+LIMIT子句在SELECT语句中用于约束结果集中的行数。LIMIT子句接受一个或两个参数。两个参数的值必须为零或正整数。
+ - 语法
+```sql
+# 写法一（LIMIT子句）：
+	SELECT 
+	    column1,column2,...
+	FROM
+	    table
+	LIMIT offset , count;
+
+# 写法二（LIMIT获取前N行）：
+	SELECT 
+	    column1,column2,...
+	FROM
+	    table
+	LIMIT N;
+
+# 实例：从"offices"表中查询前五位的"city"及"phone"信息
+	mysql> select city,phone from `offices` limit 5;
+	+---------------+-----------------+
+	| city          | phone           |
+	+---------------+-----------------+
+	| San Francisco | +1 650 219 4782 |
+	| Boston        | +1 215 837 0825 |
+	| NYC           | +1 212 555 3000 |
+	| Paris         | +33 14 723 4404 |
+	| Beijing       | +86 33 224 5000 |
+	+---------------+-----------------+
+	5 rows in set (0.00 sec)
+```
+ - 语法解释
+	 - offset指定第一行要返回的偏移量。第一行的偏移量（offset）为 0，而不是1；
+	 - count指定要返回最大的行数；
+![在这里插入图片描述](https://img-blog.csdnimg.cn/2019040122562527.png)
+ - 扩展知识
+ 	- MySQL LIMIT获取最大和最小值
+	LIMIT子句经常与ORDER BY子句一起使用。其执行顺序为先执行ORDER BY，再执行LIMIT，即先使用ORDER BY子句根据某些条件对结果集进行排序，然后使用LIMIT子句限制SELECT语句返回的行数。
+	
+	- MySQL LIMIT获得第n个最大值
+	MySQL中最棘手的问题之一是如何选择结果集中的第n个最大值，例如，获取第二个（或第n个）最昂贵的产品，在不允许使用MAX或MIN函数的情况下，你可以使用MySQL LIMIT来解决这个问题。
+		 - 首先，对结果集进行降序排序。
+		 - 第二，使用LIMIT子句获得第n个最昂贵的产品。
+```sql
+	SELECT 
+	    column1, column2,...
+	FROM
+	    table
+	ORDER BY column1 DESC
+	LIMIT nth-1, count;
+```
+#### 3.3 CASE...END判断语句
+参考教材：https://www.yiibai.com/mysql/case-statement.html
+ - 概念
+除了IF语句，MySQL提供了一个替代的条件语句CASE。 MySQL CASE语句使代码更加可读和高效。
+CASE语句有两种形式：简单的搜索CASE语句。
+
+ - 语法
+```sql
+# 写法一（简单CASE语句）：
+	CASE  case_expression
+	   WHEN when_expression_1 THEN commands
+	   WHEN when_expression_2 THEN commands
+	   ...
+	   ELSE commands
+	END CASE;
+
+# 写法二（可搜索CASE语句）：
+	CASE
+	    WHEN condition_1 THEN commands
+	    WHEN condition_2 THEN commands
+	    ...
+	    ELSE commands
+	END CASE;
+```
+
+### 4. 筛选语句 WHERE 
+参考教材：http://www.runoob.com/sql/sql-where.html
+ - 概念
+SQL WHERE 子句用于有条件地从单个表中取回数据或者将多个表进行合并。
+如果条件满足，则查询只返回表中满足条件的值。你可以用 WHERE 子句来过滤查询结果，只获取必要的记录。
+WHERE 子句不仅可以用于 SELECT 语句，还可以用于 UPDATE、DELETE 等语句
+
+ - 语法
+```sql
+# 写法：
+	SELECT column_name,column_name
+	FROM table_name
+	WHERE column_name operator value;
+
+# 实例：从'offices'表中，查询满足state='CA'条件的数据，显示'city'及'country'
+	mysql> select city, country
+	    -> from offices
+	    -> where state = 'CA';
+	+---------------+---------+
+	| city          | country |
+	+---------------+---------+
+	| San Francisco | USA     |
+	+---------------+---------+
+	1 row in set (0.00 sec)
+```
+
+#### 4.1 运算符/通配符/操作符
+参考教材：
+SQL运算符：https://www.w3cschool.cn/sql/1vpwqfp0.html
+SQL通配符：http://www.runoob.com/sql/sql-wildcards.html
+SQL操作符：http://wiki.jikexueyuan.com/project/sql/operators.html
+
+ - SQL AND, OR and NOT（与，或不是运算符）
+WHERE子句可以与AND，OR和NOT运算符结合使用。
+AND和OR运算符用于根据多个条件筛选记录：
+ 	- 如果由AND分隔的所有条件为TRUE，则AND运算符显示记录。
+	- 如果由OR分隔的任何条件为真，则OR运算符显示记录。
+如果条件不为真，则NOT运算符显示记录。 
+```sql
+# AND语法
+	SELECT column1, column2, ...
+	FROM table_name
+	WHERE condition1 AND condition2 AND condition3 ...;
+
+# OR语法
+	SELECT column1, column2, ...
+	FROM table_name
+	WHERE condition1 OR condition2 OR condition3 ...;
+
+# NOT语法
+	SELECT column1, column2, ...
+	FROM table_name
+	WHERE NOT condition;
+```
+
+ - SQL 通配符
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20190401233300459.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mjk3MDE5NQ==,size_16,color_FFFFFF,t_70)
+
+ - SQL操作符
+	 - 算数运算符
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20190401233148374.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mjk3MDE5NQ==,size_16,color_FFFFFF,t_70)
+	 - SQL 比较运算符
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20190401233217487.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mjk3MDE5NQ==,size_16,color_FFFFFF,t_70)
+	 - SQL 逻辑运算符
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20190401233233581.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mjk3MDE5NQ==,size_16,color_FFFFFF,t_70)
+
+
+### 5. 分组语句 GROUP BY
+参考教材：http://www.runoob.com/sql/sql-groupby.html
+ - 概念
+SQL GROUP BY 子句与 SELECT 语句结合在一起使用，可以将相同数据分成一组。
+在 SELECT 语句中，GROUP BY 子句紧随 WHERE 子句，在 ORDER BY 子句之前。
+GROUP BY 语句用于结合聚合函数，根据一个或多个列对结果集进行分组。
+
+ - 语法
+```sql
+# 写法：
+	SELECT column_name, aggregate_function(column_name)
+	FROM table_name
+	WHERE column_name operator value
+	GROUP BY column_name;
+
+# 实例：根据"country"及"city"列对结果集进行分组，从"offices"表中查询"country"为"USA"的"country"和"city"
+	mysql> SELECT country, city
+	    -> FROM offices
+	    -> WHERE country='USA'
+	    -> GROUP BY country, city;
+	+---------+---------------+
+	| country | city          |
+	+---------+---------------+
+	| USA     | San Francisco |
+	| USA     | Boston        |
+	| USA     | NYC           |
+	+---------+---------------+
+	3 rows in set (0.00 sec)
+```
+
+#### 5.1 聚集函数
+参考教材：https://www.cnblogs.com/geaozhang/p/6745147.html
+
+ - 概念：在一个行的集合（一组行）上进行操作，对每个组给一个结果。
+
+ - 常用的组函数：
+![](https://img-blog.csdnimg.cn/20190402200838996.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mjk3MDE5NQ==,size_16,color_FFFFFF,t_70)
+
+①每个组函数接收一个参数
+
+②默认情况下，组函数忽略列值为null的行，不参与计算
+
+③有时，会使用关键字distinct剔除字段值重复的条数
+
+**注意：**
+
+ - 当使用组函数的select语句中没有group by子句时，中间结果集中的所有行自动形成一组，然后计算组函数；
+ - 组函数不允许嵌套，例如：count(max(…))；
+ - 组函数的参数可以是列或是函数表达式；
+ - 一个SELECT子句中可出现多个聚集函数。
+
+#### 5.2 HAVING子句
+参考教材：http://www.runoob.com/sql/sql-having.html
+ - 概念
+HAVING 子句使你能够指定过滤条件，从而控制查询结果中哪些组可以出现在最终结果里面。
+
+WHERE 子句对被选择的列施加条件，而 HAVING 子句则对 GROUP BY 子句所产生的组施加条件。
+
+ - 语法
+```sql
+# 写法
+	SELECT column_name, aggregate_function(column_name)
+	FROM table_name
+	WHERE column_name operator value
+	GROUP BY column_name
+	HAVING aggregate_function(column_name) operator value;
+	
+# 示例：根据"customerNumber"、"orderNumber"及"status"列对结果集进行分组，从"order"表中查询出满足条件SUM(customerNumber) > 490的"orderNumber"、"status"及"customerNumber"
+	mysql>  SELECT orderNumber, status, customerNumber
+	    ->  FROM orders
+	    ->  GROUP BY customerNumber, orderNumber, status
+	    ->  HAVING SUM(customerNumber) > 490;
+	+-------------+-----------+----------------+
+	| orderNumber | status    | customerNumber |
+	+-------------+-----------+----------------+
+	|       10138 | Shipped   |            496 |
+	|       10179 | Cancelled |            496 |
+	|       10207 | Shipped   |            495 |
+	|       10243 | Shipped   |            495 |
+	|       10360 | Shipped   |            496 |
+	|       10399 | Shipped   |            496 |
+	+-------------+-----------+----------------+
+	6 rows in set (0.00 sec)
+```
+
+### 6. 排序语句 ORDER BY 
+参考教材：http://www.w3school.com.cn/sql/sql_orderby.asp
+ - 概念
+ORDER BY 关键字用于对结果集按照一个列或者多个列进行排序。
+ORDER BY 关键字默认按照升序对记录进行排序。如果需要按照降序对记录进行排序，您可以使用 DESC 关键字
+
+ - 语法
+```sql
+# 写法：
+	SELECT column_name,column_name
+	FROM table_name
+	ORDER BY column_name,column_name ASC|DESC;
+
+# 示例：从"offices"中查询"officeCode"、"city"及"country"，以"city"为维度默认按照升序对结果进行排序
+	mysql> SELECT officeCode, city, country
+	    -> FROM offices
+	    -> ORDER BY city;
+	+------------+---------------+-----------+
+	| officeCode | city          | country   |
+	+------------+---------------+-----------+
+	| 5          | Beijing       | China     |
+	| 2          | Boston        | USA       |
+	| 7          | London        | UK        |
+	| 3          | NYC           | USA       |
+	| 4          | Paris         | France    |
+	| 1          | San Francisco | USA       |
+	| 6          | Sydney        | Australia |
+	+------------+---------------+-----------+
+	7 rows in set (0.00 sec)
+```
+ - 正序、逆序
+可以使用 ASC 或 DESC 关键字来设置查询结果是按升序或降序排列。 默认情况下，它是按升序排列。
+ASC：升序（默认），DESC：降序
+
+### 7. 函数
+参考教材：http://www.runoob.com/mysql/mysql-functions.html
+ - 时间函数（[具体用法](http://www.w3school.com.cn/sql/sql_dates.asp)）
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20190402193830233.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mjk3MDE5NQ==,size_16,color_FFFFFF,t_70)
+ - 数值函数（[具体用法](https://www.w3cschool.cn/sql/sql-numeric-functions.html)）
+```sql
+# ABS()
+	SQL> SELECT ABS(2);
+	+---------------------------------------------------------+
+	| ABS(2)                                                  |
+	+---------------------------------------------------------+
+	| 2                                                       |
+	+---------------------------------------------------------+
+	1 row in set (0.00 sec)
+
+# ACOS（X）
+	SQL> SELECT ACOS(1);
+	+---------------------------------------------------------+
+	| ACOS(1)                                                 |
+	+---------------------------------------------------------+
+	| 0.000000                                                |
+	+---------------------------------------------------------+
+	1 row in set (0.00 sec)
+
+# ASIN（X）
+	SQL> SELECT ASIN(1);
+	+---------------------------------------------------------+
+	| ASIN(1)                                                 |
+	+---------------------------------------------------------+
+	| 1.5707963267949                                         |
+	+---------------------------------------------------------+
+	1 row in set (0.00 sec)
+
+......
+```
+
+ - 字符串函数（[具体用法](https://www.w3cschool.cn/sql/sql-string-functions.html)）
+```sql
+# ASCII（STR）
+	SQL> SELECT ASCII('2');
+	+---------------------------------------------------------+
+	| ASCII('2')                                              |
+	+---------------------------------------------------------+
+	| 50                                                      |
+	+---------------------------------------------------------+
+	1 row in set (0.00 sec)
+
+# BIN（N）
+	SQL> SELECT BIN(12);
+	+---------------------------------------------------------+
+	| BIN(12)                                                 |
+	+---------------------------------------------------------+
+	| 1100                                                    |
+	+---------------------------------------------------------+
+	1 row in set (0.00 sec)
+
+# CHAR_LENGTH（STR）
+	SQL> SELECT CHAR_LENGTH("text");
+	+---------------------------------------------------------+
+	| CHAR_LENGTH("text")                                     |
+	+---------------------------------------------------------+
+	| 4                                                       |
+	+---------------------------------------------------------+
+	1 row in set (0.00 sec)
+
+# FORMAT（X，D）
+	SQL> SELECT FORMAT(12332.123456, 4);
+	+---------------------------------------------------------+
+	| FORMAT(12332.123456, 4)                                 |
+	+---------------------------------------------------------+
+	| 12,332.1235                                             |
+	+---------------------------------------------------------+
+	1 row in set (0.00 sec)
+```
+
+### 8. SQL注释
+MySQL服务器支持3种注释风格：
+ - 单行注释：
+	 -  从‘#’字符从行尾。
+
+ 	-  从‘-- ’序列到行尾。请注意‘-- ’(双破折号)注释风格要求第2个破折号后面至少跟一个空格符(例如空格、tab、换行符等等)。该语法与标准SQL注释语法稍有不同，后者将在1.8.5.7, “‘--’作为注释起始标记”中讨论。
+
+ - 多行注释：
+ 	- 从/*序列到后面的*/序列。结束序列不一定在同一行中，因此该语法允许注释跨越多行。
+
+### 9. SQL代码规范
+[SQL编程格式的优化建议] https://zhuanlan.zhihu.com/p/27466166
+[SQL Style Guide] https://www.dsqlstyle.guide/
+
+
+## 二、作业
+### 项目一：查找重复的电子邮箱（难度：简单）
+创建 email表，并插入如下三行数据
+```sql
++----+---------+
+| Id | Email   |
++----+---------+
+| 1  | a@b.com |
+| 2  | c@d.com |
+| 3  | a@b.com |
++----+---------+
+```
+
+编写一个 SQL 查询，查找 Email 表中所有重复的电子邮箱。
+根据以上输入，你的查询应返回以下结果：
+```sql
++---------+
+| Email   |
++---------+
+| a@b.com |
++---------+
+```
+说明：所有电子邮箱都是小写字母。
+
+```sql
+# 创建表
+mysql> CREATE TABLE email (
+    -> ID INT NOT NULL PRIMARY KEY,
+    -> Email VARCHAR(255)
+    -> );
+Query OK, 0 rows affected (0.22 sec)
+
+# 插入数据
+mysql> INSERT INTO email VALUES('1','a@b.com');
+Query OK, 1 row affected (0.04 sec)
+
+mysql> INSERT INTO email VALUES('2','c@d.com');
+Query OK, 1 row affected (0.06 sec)
+
+mysql> INSERT INTO email VALUES('3','a@b.com');
+Query OK, 1 row affected (0.04 sec)
+
+# 查询结果：查找 Email 表中所有重复的电子邮箱
+mysql> SELECT Email
+    -> FROM email
+    -> GROUP BY Email
+    -> HAVING COUNT(Email)>1;
++---------+
+| Email   |
++---------+
+| a@b.com |
++---------+
+1 row in set (0.00 sec)
+```
+
+### 项目二：查找大国（难度：简单）
+创建如下 World 表
+```sql
++-----------------+------------+------------+--------------+---------------+
+| name            | continent  | area       | population   | gdp           |
++-----------------+------------+------------+--------------+---------------+
+| Afghanistan     | Asia       | 652230     | 25500100     | 20343000      |
+| Albania         | Europe     | 28748      | 2831741      | 12960000      |
+| Algeria         | Africa     | 2381741    | 37100000     | 188681000     |
+| Andorra         | Europe     | 468        | 78115        | 3712000       |
+| Angola          | Africa     | 1246700    | 20609294     | 100990000     |
++-----------------+------------+------------+--------------+---------------+
+```
+如果一个国家的面积超过300万平方公里，或者(人口超过2500万并且gdp超过2000万)，那么这个国家就是大国家。
+编写一个SQL查询，输出表中所有大国家的名称、人口和面积。
+例如，根据上表，我们应该输出:
+```sql
++--------------+-------------+--------------+
+| name         | population  | area         |
++--------------+-------------+--------------+
+| Afghanistan  | 25500100    | 652230       |
+| Algeria      | 37100000    | 2381741      |
++--------------+-------------+--------------+
+```
+
+```sql
+## 创建表
+mysql> CREATE TABLE World (
+    -> name VARCHAR(50) NOT NULL,
+    -> continent VARCHAR(50) NOT NULL,
+    -> area INT NOT NULL,
+    -> population INT NOT NULL,
+    -> gdp INT NOT NULL
+    -> );
+Query OK, 0 rows affected (0.31 sec)
+
+# 插入数据
+mysql> INSERT INTO World
+    ->   VALUES('Afghanistan','Asia',652230,25500100,20343000);
+Query OK, 1 row affected (0.07 sec)
+
+mysql> INSERT INTO World
+    ->   VALUES('Albania','Europe',28748,2831741,12960000);
+Query OK, 1 row affected (0.06 sec)
+
+mysql> INSERT INTO World
+    ->   VALUES('Algeria','Africa',2381741,37100000,188681000);
+Query OK, 1 row affected (0.09 sec)
+
+mysql> INSERT INTO World
+    ->   VALUES('Andorra','Europe',468,78115,3712000);
+Query OK, 1 row affected (0.05 sec)
+
+mysql> INSERT INTO World
+    ->   VALUES('Angola','Africa',1246700,20609294,100990000);
+Query OK, 1 row affected (0.10 sec)
+
+# 查询结果：输出表中所有大国家的名称、人口和面积
+mysql> SELECT name, population, area
+    -> FROM world
+    -> WHERE area > 3000000 OR (population > 25000000 AND gdp > 20000000);
++-------------+------------+---------+
+| name        | population | area    |
++-------------+------------+---------+
+| Afghanistan |   25500100 |  652230 |
+| Algeria     |   37100000 | 2381741 |
++-------------+------------+---------+
+2 rows in set (0.00 sec)
+```
